@@ -5,11 +5,14 @@ import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import io.github.dasbelf.AutomaticPermission.files.ConfigHandler;
 import io.github.dasbelf.AutomaticPermission.database.DatabaseHandler;
 import org.slf4j.Logger;
 
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +21,12 @@ import java.util.UUID;
 @Plugin(id = "automaticpermission", name = "AutomaticPermission", version = BuildConstants.VERSION)
 public class AutomaticPermission {
 
+
+    private final Path dataDirectory;
+
+    public String storage_method;
     DatabaseHandler database;
+    ConfigHandler config;
 
 
     private final List<UUID> connectedPlayers = new ArrayList();
@@ -33,25 +41,48 @@ public class AutomaticPermission {
     public void onProxyInitialization(ProxyInitializeEvent event) throws SQLException {
 
 
-        if (database.connect())
+        if (storage_method.equals("sql"))
         {
-            logger.info("Datenbankzugriff möglich");
+            if (this.database.init())
+            {
+                logger.info("Datenbankzugriff möglich");
+            }
+            else {
+                logger.info("Datenbankdzugriff nicht möglich, ggf. Rechte des Nutzers prüfen");
+            }
         }
-        else {
-            logger.info("Datenbankdzugriff nicht möglich");
+        else
+        {
+            logger.info("Daten werden in .json gespeichert!");
         }
+
     }
 
     @Inject
-    public AutomaticPermission(Logger logger, ProxyServer proxy) {
+    public AutomaticPermission(Logger logger, ProxyServer proxy, @DataDirectory Path dataDirectory) {
         this.proxy = proxy;
         this.logger = logger;
+        this.dataDirectory = dataDirectory;
+
+
 
         logger.info("AutomaticPermission has initialized successfully");
         logger.info("Please Check your config under plugins/AutomaticPermission");
+        //logger.info(String.valueOf(this.dataDirectory));
 
 
-        database = new DatabaseHandler("10.1.1.20", 3306, "automatic_permission","root","Secure+Password");
+        this.config = new ConfigHandler(this.dataDirectory, this);
+
+        logger.info("IP: " + config.ip);
+
+        if (storage_method.equals("sql"))
+        {
+            this.database = new DatabaseHandler(config.ip, config.port, config.database, config.table_group, config.username, config.password);
+        }
+        else
+        {
+
+        }
     }
 
 
@@ -74,7 +105,7 @@ public class AutomaticPermission {
     {
         database.connect();
 
-        String groupname = database.selectQuery(playerID);
+        String groupname = database.querySelectGroup(playerID);
         String command = "lpv user " + player.getUsername() + " parent set " + groupname;
         logger.info(command);
         proxy.getCommandManager().executeAsync(proxy.getConsoleCommandSource(), command);
