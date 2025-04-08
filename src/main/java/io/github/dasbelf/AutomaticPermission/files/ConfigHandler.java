@@ -35,9 +35,6 @@ public class ConfigHandler
             if (Files.notExists(configFile.getParent()) )
             {
                 Files.createDirectories(configFile.getParent());
-
-
-
             }
 
             if (Files.notExists(configFile))
@@ -77,9 +74,6 @@ public class ConfigHandler
                 this.ip = (String) mysqlConfig.get("host");
                 this.port = (Integer) mysqlConfig.get("port");
 
-                //Object portObj = config.get("port");
-
-                //this.port = (portObj != null) ? Integer.parseInt(portObj.toString()) : 3306;
                 this.database = (String) mysqlConfig.get("database");
                 this.table_group = (String) mysqlConfig.get("table_group");
                 this.username = (String) mysqlConfig.get("user");;

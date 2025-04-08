@@ -1,6 +1,7 @@
 package io.github.dasbelf.AutomaticPermission;
 
 import com.google.inject.Inject;
+import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
@@ -8,8 +9,9 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import io.github.dasbelf.AutomaticPermission.commands.CommandHandler;
 import io.github.dasbelf.AutomaticPermission.files.ConfigHandler;
-import io.github.dasbelf.AutomaticPermission.database.DatabaseHandler;
+import io.github.dasbelf.AutomaticPermission.files.DatabaseHandler;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -55,6 +57,16 @@ public class AutomaticPermission {
         {
             logger.info("Daten werden in .json gespeichert!");
         }
+
+        CommandManager commandManager = proxy.getCommandManager();
+
+        //SimpleCommand simpleCommand =
+
+        commandManager.register(commandManager.metaBuilder("automaticpermission")
+                        .aliases("autoperm")
+                        .aliases("ap")
+                        .build(), new CommandHandler(this.logger));
+
 
     }
 
