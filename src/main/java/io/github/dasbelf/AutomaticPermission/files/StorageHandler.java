@@ -1,13 +1,19 @@
 package io.github.dasbelf.AutomaticPermission.files;
 
-public class StorageHandler
+public interface StorageHandler
 {
-    public StorageHandler()
+
+    default void loadAllData()
     {
 
     }
 
-    public void saveUserGroups()
+    default void saveUsers()
+    {
+
+    }
+
+    default void saveGroups()
     {
 
     }

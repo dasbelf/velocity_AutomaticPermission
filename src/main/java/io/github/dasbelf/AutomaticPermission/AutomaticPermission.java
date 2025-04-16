@@ -10,8 +10,7 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import io.github.dasbelf.AutomaticPermission.commands.CommandHandler;
-import io.github.dasbelf.AutomaticPermission.files.ConfigHandler;
-import io.github.dasbelf.AutomaticPermission.files.DatabaseHandler;
+import io.github.dasbelf.AutomaticPermission.files.*;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -24,14 +23,23 @@ import java.util.UUID;
 public class AutomaticPermission {
 
 
+
+
+
+
     private final Path dataDirectory;
 
     public String storage_method;
-    DatabaseHandler database;
+    DatabaseHandler_old database;
     ConfigHandler config;
+    StorageHandler storageHandler;
 
 
     private final List<UUID> connectedPlayers = new ArrayList();
+
+    public List<String> listedGroups = new ArrayList();
+    public List<String> listedUsers = new ArrayList();
+
 
     @Getter
     private final Logger logger;
@@ -89,11 +97,15 @@ public class AutomaticPermission {
 
         if (storage_method.equals("sql"))
         {
-            this.database = new DatabaseHandler(config.ip, config.port, config.database, config.table_group, config.username, config.password);
+            storageHandler = new DatabaseHandler(config.ip, config.port, config.database, config.table_group, config.username, config.password);
+        }
+        else if (storage_method.equals("json"))
+        {
+            storageHandler = new FileHandler();
         }
         else
         {
-
+            throw new ExceptionInInitializerError("Wrong storage Method, please check your config!");
         }
     }
 
